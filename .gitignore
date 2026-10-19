@@ -6,3 +6,5 @@ target/
 .settings/
 .DS_Store
 *.log
+# Local digital evidence test files
+evidence-test-data/

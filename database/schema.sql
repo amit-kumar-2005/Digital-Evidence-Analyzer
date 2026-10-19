@@ -1,7 +1,7 @@
-CREATE DATABASE IF NOT EXISTS digital_evidence_analyzer;
+CREATE DATABASE IF NOT EXISTS digital_evidence_analyzer CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE digital_evidence_analyzer;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   full_name VARCHAR(120) NOT NULL,
   email VARCHAR(160) NOT NULL UNIQUE,
@@ -10,7 +10,7 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE cases (
+CREATE TABLE IF NOT EXISTS cases (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   case_code VARCHAR(40) NOT NULL UNIQUE,
   case_name VARCHAR(180) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE cases (
   CONSTRAINT fk_cases_user FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
-CREATE TABLE evidence_files (
+CREATE TABLE IF NOT EXISTS evidence_files (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   case_id BIGINT NOT NULL,
   evidence_code VARCHAR(40) NOT NULL UNIQUE,
@@ -41,7 +41,7 @@ CREATE TABLE evidence_files (
   CONSTRAINT fk_evidence_case FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
 );
 
-CREATE TABLE suspicious_indicators (
+CREATE TABLE IF NOT EXISTS suspicious_indicators (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   evidence_id BIGINT NOT NULL,
   indicator_type VARCHAR(100) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE suspicious_indicators (
   FOREIGN KEY (evidence_id) REFERENCES evidence_files(id) ON DELETE CASCADE
 );
 
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT,
   case_id BIGINT,
@@ -62,7 +62,7 @@ CREATE TABLE audit_logs (
   FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_evidence_case ON evidence_files(case_id);
-CREATE INDEX idx_evidence_sha256 ON evidence_files(current_sha256);
-CREATE INDEX idx_indicator_evidence ON suspicious_indicators(evidence_id);
-CREATE INDEX idx_audit_case ON audit_logs(case_id);
+CREATE INDEX IF NOT EXISTS idx_evidence_case ON evidence_files(case_id);
+CREATE INDEX IF NOT EXISTS idx_evidence_sha256 ON evidence_files(current_sha256);
+CREATE INDEX IF NOT EXISTS idx_indicator_evidence ON suspicious_indicators(evidence_id);
+CREATE INDEX IF NOT EXISTS idx_audit_case ON audit_logs(case_id);
