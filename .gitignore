@@ -8,3 +8,5 @@ target/
 *.log
 # Local digital evidence test files
 evidence-test-data/
+# Temporary password hash utility
+GeneratePasswordHash.java
