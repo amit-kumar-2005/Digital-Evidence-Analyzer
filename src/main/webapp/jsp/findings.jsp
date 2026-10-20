@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.digitalforensics.controller.FindingServlet.FindingRecord" %>
+<%@ page import="com.digitalforensics.model.User" %>
 
 <%
     List<FindingRecord> findings =
@@ -11,6 +12,14 @@
 
     String errorMessage =
             (String) request.getAttribute("errorMessage");
+
+    User currentUser = (User) session.getAttribute("currentUser");
+
+    boolean canReview = currentUser != null
+            && ("ADMIN".equalsIgnoreCase(currentUser.getRole())
+            || "INVESTIGATOR".equalsIgnoreCase(currentUser.getRole()));
+
+    String reviewMessage = request.getParameter("review");
 
     if (findings == null) {
         findings = java.util.Collections.emptyList();
@@ -206,6 +215,11 @@
 
         <% } %>
 
+        <% if ("saved".equals(reviewMessage)) { %>
+            <div class="success-message">
+                ✓ Finding review updated successfully.
+            </div>
+        <% } %>
 
         <!-- ================= INFORMATION ================= -->
 
@@ -395,6 +409,66 @@
 
                         </div>
 
+                        <% if (canReview) { %>
+
+                            <form method="post"
+                                  action="${pageContext.request.contextPath}/findings"
+                                  class="finding-review-form">
+
+                                <input type="hidden"
+                                       name="evidenceId"
+                                       value="<%= finding.getEvidenceId() %>">
+
+                                <input type="hidden"
+                                       name="reviewKey"
+                                       value="<%= finding.getReviewKey() %>">
+
+                                <label>
+                                    Review Status
+                                    <select name="reviewStatus" required>
+                                        <option value="UNDER REVIEW"
+                                            <%= "UNDER REVIEW".equals(finding.getReviewStatus())
+                                                    ? "selected" : "" %>>
+                                            Under Review
+                                        </option>
+
+                                        <option value="VERIFIED"
+                                            <%= "VERIFIED".equals(finding.getReviewStatus())
+                                                    ? "selected" : "" %>>
+                                            Verified
+                                        </option>
+
+                                        <option value="REJECTED"
+                                            <%= "REJECTED".equals(finding.getReviewStatus())
+                                                    ? "selected" : "" %>>
+                                            Rejected
+                                        </option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    Review Comment
+                                    <textarea name="reviewComment"
+                                              maxlength="1000"
+                                              rows="2"
+                                              placeholder="Enter review remarks"><%= finding.getReviewComment() == null
+                                                      ? "" : finding.getReviewComment() %></textarea>
+                                </label>
+
+                                <button type="submit" class="primary-button">
+                                    Save Review
+                                </button>
+
+                            </form>
+
+                        <% } else { %>
+
+                            <p class="review-readonly-note">
+                                Read-only access: only Admin and Investigator
+                                can update finding reviews.
+                            </p>
+
+                        <% } %>
 
                         <div class="finding-grid">
 
