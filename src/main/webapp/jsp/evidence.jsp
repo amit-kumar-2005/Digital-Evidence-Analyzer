@@ -3,6 +3,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.digitalforensics.controller.EvidenceServlet.CaseOption" %>
 <%@ page import="com.digitalforensics.controller.EvidenceServlet.EvidenceRecord" %>
+<%@ page import="com.digitalforensics.model.User" %>
 
 <%
     List<CaseOption> cases =
@@ -13,6 +14,13 @@
 
     String success = request.getParameter("success");
     String error = request.getParameter("error");
+
+    User currentUser = (User) session.getAttribute("currentUser");
+    String role = currentUser == null ? "" : currentUser.getRole();
+
+    boolean canRegisterEvidence =
+            "ADMIN".equalsIgnoreCase(role)
+            || "INVESTIGATOR".equalsIgnoreCase(role);
 %>
 
 <!DOCTYPE html>
@@ -154,6 +162,8 @@
         <% } %>
 
 
+        <% if (canRegisterEvidence) { %>
+
         <section class="panel evidence-form-panel">
 
             <div class="panel-head">
@@ -250,6 +260,14 @@
             </form>
 
         </section>
+
+        <% } else { %>
+
+            <div class="alert">
+                Read-only access: only Admin and Investigator can register evidence.
+            </div>
+
+        <% } %>
 
 
         <section class="panel">
